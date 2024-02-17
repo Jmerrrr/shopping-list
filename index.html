@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Practice</title>
+    <link rel="stylesheet" href="style.css">
+   
+</head>
+<body>
+     <div id="container">
+          <img src="cat_5793610.png" alt="">
+          <input type="text" id="input-field" placeholder="Bread">
+          <button id="addBtn">Add to Cart</button>
+          <ul id="shopping-list">
+             <li></li>
+          </ul>
+     </div>
+    
+     <script src="functions.js" type="module"></script>
+    <script type="module">
+          import {initializeApp} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+          import {getDatabase, ref, push, onValue, remove} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+
+          const appSettings = {
+               databaseURL: "https://shopapp-f6312-default-rtdb.firebaseio.com/",
+          }
+
+          const app = initializeApp(appSettings);
+          const database = getDatabase(app);
+          const shoppingListInDB = ref(database, "shoppling list")
+
+
+          const inputField = document.getElementById('input-field')
+          const addBtn = document.getElementById('addBtn');
+          const container = document.getElementById('container')
+          const shoppingList = document.getElementById('shopping-list')
+
+     
+
+      
+
+
+          addBtn.addEventListener('click', () => {
+
+
+              let val = inputField.value;
+
+              push(shoppingListInDB, val);
+
+             console.log(`${val} is added to the database!`)
+
+               inputField.value = "";
+               
+              
+
+
+          
+
+          })
+
+          onValue(shoppingListInDB, function (snapshot) {
+               
+               if(snapshot.exists()){
+               let shopArray = Object.entries(snapshot.val())
+
+               shoppingList.innerHTML = "";
+
+               for(let i = 0; i<shopArray.length; i++){
+                    let currentItem = shopArray[i];
+
+                    let currentItemID = currentItem[0];
+                    let currentItemValue = currentItem[1];
+
+                    appendList(currentItem)
+               }
+
+
+               
+          } else {
+               shoppingList.innerHTML = 'No items here.... yet'
+          }
+               
+          })
+
+     
+
+
+          function appendList(item){
+               //shoppingList.innerHTML += `<li>${item}</li>`
+               
+               
+
+               let itemID = item[0];
+               let itemValue = item[1];
+              
+               let newEl = document.createElement('li');
+
+               newEl.textContent = itemValue;
+
+
+               newEl.addEventListener('click', () => {
+                    let exactLocationOfAnItemInDB = ref(database, `shoppling list/${itemID}`)
+
+                    remove(exactLocationOfAnItemInDB);
+               })
+
+               
+               shoppingList.append(newEl);
+          }
+
+         
+
+
+          
+    </script>
+</body>
+</html>
